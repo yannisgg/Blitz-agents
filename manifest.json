@@ -1,0 +1,13 @@
+{
+  "name": "BLITZ AGENTS",
+  "short_name": "BLITZ",
+  "description": "Système IA opérationnel Blitz Dépannage",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#07070C",
+  "theme_color": "#07070C",
+  "orientation": "portrait",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
