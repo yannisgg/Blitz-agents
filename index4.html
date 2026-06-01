@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="BLITZ"/>
+<meta name="theme-color" content="#07070C"/>
+<title>BLITZ AGENTS</title>
+<link rel="manifest" href="manifest.json"/>
+<link rel="apple-touch-icon" href="icon.svg"/>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@700;900&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+:root{
+  --bg:#07070C;--bg2:#0A0A12;--bg3:#0D0D1C;
+  --border:#13132A;--border2:#1A1A2C;
+  --text:#DDD;--text2:#888;--text3:#333;
+  --orange:#FF6B00;--blue:#00C2FF;--green:#00E87A;--purple:#C87CFF;--red:#FF3366;
+}
+html,body{height:100%;overflow:hidden;background:var(--bg);font-family:'DM Mono',monospace;color:var(--text);}
+#app{display:flex;flex-direction:column;height:100dvh;height:-webkit-fill-available;}
+/* SETUP SCREEN */
+#setup{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100dvh;padding:32px;text-align:center;background:var(--bg);}
+#setup h1{font-family:'DM Sans',sans-serif;font-weight:900;font-size:28px;color:#fff;margin-bottom:6px;}
+#setup h1 span{color:var(--orange);}
+#setup p{font-size:12px;color:var(--text2);line-height:1.7;margin-bottom:28px;}
+#setup input{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:10px;color:#fff;padding:14px 16px;font-size:14px;font-family:'DM Mono',monospace;outline:none;margin-bottom:12px;letter-spacing:1px;}
+#setup button{width:100%;background:var(--orange);border:none;border-radius:10px;color:#fff;padding:14px;font-size:14px;font-family:'DM Mono',monospace;font-weight:500;cursor:pointer;letter-spacing:1px;}
+#setup .hint{font-size:10px;color:var(--text3);margin-top:16px;line-height:1.7;}
+#setup .hint a{color:#444;text-decoration:underline;}
+/* HEADER */
+#header{background:var(--bg);border-bottom:1px solid var(--border);padding:10px 14px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;padding-top:env(safe-area-inset-top, 10px);}
+.logo-box{width:30px;height:30px;background:var(--orange);border-radius:6px;display:flex;align-items:center;justify-content:center;font-family:'DM Sans',sans-serif;font-weight:900;font-size:16px;color:#fff;}
+.logo-text{font-family:'DM Sans',sans-serif;font-weight:700;font-size:14px;color:#fff;}
+.logo-text span{color:var(--orange);}
+.logo-sub{font-size:9px;color:#222;letter-spacing:2px;margin-top:1px;}
+#mem-count{text-align:right;}
+#mem-count .label{font-size:9px;color:#222;letter-spacing:1px;}
+#mem-count .num{font-family:'DM Sans',sans-serif;font-weight:900;font-size:22px;color:var(--orange);line-height:1;}
+/* KPI BAR */
+#kpi-bar{background:var(--bg2);border-bottom:1px solid var(--border);padding:7px 14px;display:flex;gap:7px;overflow-x:auto;flex-shrink:0;align-items:center;-webkit-overflow-scrolling:touch;}
+#kpi-bar::-webkit-scrollbar{display:none;}
+.kpi-label{font-size:9px;color:#222;letter-spacing:2px;flex-shrink:0;}
+.kpi-input{background:#111120;border:1px solid #1E1E30;border-radius:5px;color:#BBB;padding:3px 8px;font-size:10px;font-family:'DM Mono',monospace;width:90px;min-width:80px;outline:none;flex-shrink:0;}
+/* TABS */
+#tabs{display:flex;background:var(--bg);border-bottom:1px solid var(--border);overflow-x:auto;flex-shrink:0;-webkit-overflow-scrolling:touch;}
+#tabs::-webkit-scrollbar{display:none;}
+.tab-btn{display:flex;align-items:center;gap:6px;padding:10px 13px;background:transparent;border:none;border-bottom:2px solid transparent;color:#383848;cursor:pointer;font-family:'DM Mono',monospace;font-size:11px;flex-shrink:0;white-space:nowrap;transition:color .15s;}
+.tab-btn.active{color:#fff;}
+.tab-badge{border-radius:8px;padding:1px 5px;font-size:9px;}
+/* ROLE STRIP */
+#role-strip{background:#090911;border-bottom:1px solid var(--border);padding:5px 14px;display:flex;justify-content:space-between;flex-shrink:0;}
+.role-name{font-size:10px;color:#383848;}
+.role-count{font-size:10px;color:#1E1E2E;}
+/* MESSAGES */
+#messages{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;-webkit-overflow-scrolling:touch;}
+#messages::-webkit-scrollbar{width:3px;}
+#messages::-webkit-scrollbar-thumb{background:#1E1E30;border-radius:3px;}
+.empty-state{text-align:center;margin-top:40px;}
+.empty-icon{font-size:30px;opacity:.12;margin-bottom:10px;}
+.empty-text{color:#1E1E30;font-size:11px;line-height:1.9;}
+.empty-text span{font-weight:500;}
+.quick-btns{margin-top:14px;display:flex;gap:7px;justify-content:center;flex-wrap:wrap;}
+.quick-btn{background:#0D0D1A;border-radius:14px;padding:4px 11px;font-size:10px;cursor:pointer;font-family:'DM Mono',monospace;border-width:1px;border-style:solid;}
+.msg-row{display:flex;}
+.msg-row.user{justify-content:flex-end;}
+.msg-row.assistant{justify-content:flex-start;}
+.msg-bubble{max-width:86%;padding:9px 13px;font-size:12px;line-height:1.75;white-space:pre-wrap;word-break:break-word;}
+.msg-bubble.user{border-radius:13px 13px 3px 13px;}
+.msg-bubble.assistant{border-radius:3px 13px 13px 13px;background:var(--bg3);border:1px solid #18182A;color:#B8B8CC;}
+/* TYPING */
+.typing{display:flex;gap:5px;padding-left:4px;align-items:center;}
+.dot{width:6px;height:6px;border-radius:50%;}
+/* INPUT */
+#input-bar{border-top:1px solid var(--border);padding:9px 12px;display:flex;gap:7px;background:var(--bg);flex-shrink:0;padding-bottom:max(9px, env(safe-area-inset-bottom));}
+#msg-input{flex:1;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:#DDD;padding:8px 11px;font-size:12px;font-family:'DM Mono',monospace;resize:none;max-height:80px;overflow-y:auto;line-height:1.5;outline:none;}
+.send-btn{width:37px;height:37px;border-radius:8px;border:none;cursor:pointer;font-size:15px;color:#fff;flex-shrink:0;transition:background .2s;}
+.clear-btn{width:37px;height:37px;border-radius:8px;border:1px solid var(--border2);background:transparent;color:#333;cursor:pointer;font-size:11px;flex-shrink:0;}
+/* PIP */
+.pip{position:relative;display:inline-flex;width:8px;height:8px;flex-shrink:0;}
+.pip-outer{position:absolute;inset:0;border-radius:50%;opacity:.3;}
+.pip-inner{position:absolute;inset:2px;border-radius:50%;}
+@keyframes pp{0%,100%{transform:scale(1);opacity:.3}50%{transform:scale(2.5);opacity:0}}
+@keyframes bl{0%{transform:translateY(0)}100%{transform:translateY(-5px)}}
+.pip-outer.anim{animation:pp 2s ease-in-out infinite;}
+.dot.anim0{animation:bl .7s 0s infinite alternate;}
+.dot.anim1{animation:bl .7s .15s infinite alternate;}
+.dot.anim2{animation:bl .7s .30s infinite alternate;}
+</style>
+</head>
+<body>
+
+<!-- SETUP SCREEN -->
+<div id="setup">
+  <div class="logo-box" style="width:50px;height:50px;font-size:24px;margin-bottom:16px;">B</div>
+  <h1>BLITZ <span>AGENTS</span></h1>
+  <p>Ton système IA opérationnel<br/>pour Blitz Dépannage</p>
+  <input type="password" id="api-key-input" placeholder="Clé API Anthropic (sk-ant-...)" autocomplete="off" spellcheck="false"/>
+  <button onclick="saveKey()">ACTIVER LES AGENTS →</button>
+  <div class="hint">
+    Obtenir ta clé : <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a><br/>
+    Ta clé est stockée uniquement sur ton téléphone.<br/>
+    Jamais envoyée ailleurs.
+  </div>
+</div>
+
+<!-- MAIN APP (hidden until key set) -->
+<div id="app" style="display:none;">
+  <div id="header">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div class="logo-box">B</div>
+      <div>
+        <div class="logo-text">BLITZ <span>AGENTS</span></div>
+        <div class="logo-sub">SYSTÈME IA OPÉRATIONNEL</div>
+      </div>
+    </div>
+    <div id="mem-count">
+      <div class="label">MÉMORISÉS</div>
+      <div class="num" id="total-count">0</div>
+    </div>
+  </div>
+
+  <div id="kpi-bar">
+    <span class="kpi-label">KPIs</span>
+    <input class="kpi-input" id="kpi-ca" placeholder="CA/mois €" oninput="saveKPIs()" />
+    <input class="kpi-input" id="kpi-interv" placeholder="Interv/sem" oninput="saveKPIs()" />
+    <input class="kpi-input" id="kpi-ticket" placeholder="Ticket moy €" oninput="saveKPIs()" />
+    <input class="kpi-input" id="kpi-avis" placeholder="Avis Google" oninput="saveKPIs()" />
+    <input class="kpi-input" id="kpi-impayes" placeholder="Impayés €" oninput="saveKPIs()" />
+  </div>
+
+  <div id="tabs"></div>
+
+  <div id="role-strip">
+    <span class="role-name" id="role-label"></span>
+    <span class="role-count" id="role-count"></span>
+  </div>
+
+  <div id="messages"></div>
+
+  <div id="input-bar">
+    <textarea id="msg-input" rows="1" placeholder="Message…"></textarea>
+    <button class="send-btn" id="send-btn" onclick="sendMsg()">→</button>
+    <button class="clear-btn" id="clear-btn" onclick="clearChat()" style="display:none;">✕</button>
+  </div>
+</div>
+
+<script>
+const AGENTS = [
+  { id:"stratege", name:"STRATÈGE", icon:"◈", color:"#FF6B00", role:"Croissance & Business Development",
+    system:`Tu es STRATÈGE, agent de croissance de Blitz Dépannage (dépannage/remorquage auto, solo entrepreneur Yannis, Lille, France, auto-entrepreneur → SASU). Mission : maximiser CA, niches B2B (assureurs, garages partenaires, VE, longue distance), roadmap trimestrielle. Réponses courtes, chiffrées, actionnables. Toujours 1 action concrète dans les 48h. Format : 🎯 Réponse directe → 📋 Plan → 🔜 Action immédiate` },
+  { id:"fiscal", name:"FISCAL", icon:"◉", color:"#00C2FF", role:"Fiscalité, Comptabilité & SASU",
+    system:`Tu es FISCAL, expert-comptable virtuel de Blitz Dépannage (Yannis, auto-entrepreneur → SASU, pas de TVA art.293B CGI). Mission : optimiser fiscalité légalement, guider AE→SASU, IS/cotisations, charges déductibles dépannage. Objectif SASU : protection patrimoine + IS + dividendes. Toujours signaler si validation pro requise. Format : 💶 Réponse → ⚠️ Points d'attention → 🔜 Prochaine étape` },
+  { id:"ops", name:"OPS", icon:"◆", color:"#00E87A", role:"Organisation, Process & Automatisation",
+    system:`Tu es OPS, chef opérationnel de Blitz Dépannage (solo, terrain, mobile-first, budget limité). Mission : process, automatisation Make/Zapier/n8n, outils lean <30€/mois, IA quotidienne. Toujours outils avec version gratuite ou <30€/mois. Format : ⚙️ Solution → 🛠 Outils → 🔜 Mise en place` },
+  { id:"juridique", name:"JURISTE", icon:"◇", color:"#C87CFF", role:"Juridique, Conformité & Contrats",
+    system:`Tu es JURISTE, conseiller juridique de Blitz Dépannage (France, dépannage auto, Yannis solo → SASU). Mission : création SASU, contrats/CGV, assurances obligatoires, agréments secteur, RGPD. Toujours "à valider avec un professionnel du droit" sur points sensibles. Format : ⚖️ Réponse → 📄 Modèle si applicable → ⚠️ Avertissement légal` },
+  { id:"growth", name:"GROWTH", icon:"◐", color:"#FF3366", role:"Marketing Digital & Acquisition",
+    system:`Tu es GROWTH, responsable marketing de Blitz Dépannage (Lille, particuliers + garages + assureurs, budget limité). Mission : dominer GMB local, leads entrants, partenariats B2B, SEO local. Actions gratuites en priorité. Mobile-first. Format : 📣 Stratégie → 📲 Actions terrain → 📊 Métriques` }
+];
+
+const QUICK = {
+  stratege:["Opportunités B2B Lille","Roadmap Q3 2025","Niches sous-exploitées"],
+  fiscal:["Seuil optimal SASU","Charges déductibles","Rémunération SASU"],
+  ops:["Automatiser facturation","CRM gratuit solo","Process intervention"],
+  juridique:["Checklist création SASU","Modèle bon d'intervention","Assurances obligatoires"],
+  growth:["Optimiser fiche GMB","Stratégie avis clients","Partenariats garages"]
+};
+
+let currentTab = "stratege";
+let memories = {};
+let busy = false;
+
+// ─── STORAGE ────────────────────────────────────────────────────────────────
+function saveKey() {
+  const key = document.getElementById("api-key-input").value.trim();
+  if (!key.startsWith("sk-ant-")) { alert("Clé invalide. Elle doit commencer par sk-ant-"); return; }
+  localStorage.setItem("blitz_api_key", key);
+  init();
+}
+function getKey() { return localStorage.getItem("blitz_api_key") || ""; }
+function saveKPIs() {
+  localStorage.setItem("blitz_kpis", JSON.stringify({
+    ca: document.getElementById("kpi-ca").value,
+    interv: document.getElementById("kpi-interv").value,
+    ticket: document.getElementById("kpi-ticket").value,
+    avis: document.getElementById("kpi-avis").value,
+    impayes: document.getElementById("kpi-impayes").value
+  }));
+}
+function loadKPIs() {
+  try {
+    const k = JSON.parse(localStorage.getItem("blitz_kpis") || "{}");
+    if (k.ca) document.getElementById("kpi-ca").value = k.ca;
+    if (k.interv) document.getElementById("kpi-interv").value = k.interv;
+    if (k.ticket) document.getElementById("kpi-ticket").value = k.ticket;
+    if (k.avis) document.getElementById("kpi-avis").value = k.avis;
+    if (k.impayes) document.getElementById("kpi-impayes").value = k.impayes;
+  } catch {}
+}
+function saveMem() { localStorage.setItem("blitz_mem", JSON.stringify(memories)); }
+function loadMem() { try { memories = JSON.parse(localStorage.getItem("blitz_mem") || "{}"); } catch { memories = {}; } }
+
+// ─── API ────────────────────────────────────────────────────────────────────
+async function callClaude(system, messages) {
+  const key = getKey();
+  const res = await fetch("/.netlify/functions/chat", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ system, messages, apiKey: key })
+  });
+  const raw = await res.text();
+  if (!res.ok) throw new Error("HTTP " + res.status + ": " + raw.slice(0, 200));
+  const d = JSON.parse(raw);
+  if (d?.content?.[0]?.text) return d.content[0].text;
+  throw new Error("Erreur API: " + JSON.stringify(d).slice(0, 200));
+}
+
+// ─── UI ─────────────────────────────────────────────────────────────────────
+function getKpiCtx() {
+  const k = JSON.parse(localStorage.getItem("blitz_kpis") || "{}");
+  if (!Object.values(k).some(Boolean)) return "";
+  return `\nKPIs actuels: CA=${k.ca||"?"} Interv/sem=${k.interv||"?"} Ticket=${k.ticket||"?"} Avis Google=${k.avis||"?"} Impayés=${k.impayes||"?"}`;
+}
+
+function buildTabs() {
+  const tabs = document.getElementById("tabs");
+  tabs.innerHTML = "";
+  AGENTS.forEach(a => {
+    const cnt = Math.floor((memories[a.id]?.length || 0) / 2);
+    const btn = document.createElement("button");
+    btn.className = "tab-btn" + (a.id === currentTab ? " active" : "");
+    btn.style.borderBottomColor = a.id === currentTab ? a.color : "transparent";
+    btn.innerHTML = `<span class="pip"><span class="pip-outer${a.id===currentTab?" anim":""}" style="background:${a.color}"></span><span class="pip-inner" style="background:${a.color}"></span></span>${a.name}${cnt > 0 ? `<span class="tab-badge" style="background:${a.color}22;color:${a.color}">${cnt}</span>` : ""}`;
+    btn.onclick = () => switchTab(a.id);
+    tabs.appendChild(btn);
+  });
+}
+
+function switchTab(id) {
+  currentTab = id;
+  buildTabs();
+  renderMessages();
+  updateRoleStrip();
+  document.getElementById("msg-input").placeholder = "Message à " + AGENTS.find(a=>a.id===id).name + "…";
+}
+
+function updateRoleStrip() {
+  const a = AGENTS.find(x => x.id === currentTab);
+  const h = memories[currentTab] || [];
+  document.getElementById("role-label").textContent = a.role;
+  document.getElementById("role-count").textContent = h.length > 0 ? Math.floor(h.length/2) + " échanges mémorisés" : "En attente";
+}
+
+function updateTotalCount() {
+  const total = Object.values(memories).reduce((s, h) => s + (h?.length || 0), 0);
+  document.getElementById("total-count").textContent = total;
+}
+
+function renderMessages() {
+  const a = AGENTS.find(x => x.id === currentTab);
+  const h = memories[currentTab] || [];
+  const box = document.getElementById("messages");
+  box.innerHTML = "";
+
+  if (h.length === 0) {
+    const qs = (QUICK[currentTab] || []).map(q =>
+      `<button class="quick-btn" style="border-color:${a.color}30;color:${a.color}" onclick="sendMsg('${q}')">${q}</button>`
+    ).join("");
+    box.innerHTML = `<div class="empty-state">
+      <div class="empty-icon">${a.icon}</div>
+      <div class="empty-text">Agent <span style="color:${a.color}">${a.name}</span> actif.<br/>Mémoire persistante entre sessions.</div>
+      <div class="quick-btns">${qs}</div>
+    </div>`;
+  } else {
+    h.forEach(m => {
+      const row = document.createElement("div");
+      row.className = "msg-row " + m.role;
+      const bubble = document.createElement("div");
+      bubble.className = "msg-bubble " + m.role;
+      bubble.textContent = m.content;
+      if (m.role === "user") {
+        bubble.style.background = a.color + "1A";
+        bubble.style.border = "1px solid " + a.color + "35";
+        bubble.style.color = "#CCC";
+      }
+      row.appendChild(bubble);
+      box.appendChild(row);
+    });
+  }
+
+  document.getElementById("clear-btn").style.display = h.length > 0 ? "flex" : "none";
+  updateSendBtn();
+  setTimeout(() => box.scrollTop = box.scrollHeight, 60);
+}
+
+function showTyping() {
+  const a = AGENTS.find(x => x.id === currentTab);
+  const box = document.getElementById("messages");
+  const el = document.createElement("div");
+  el.id = "typing-indicator";
+  el.className = "typing";
+  el.innerHTML = [0,1,2].map(i => `<div class="dot anim${i}" style="background:${a.color}"></div>`).join("");
+  box.appendChild(el);
+  box.scrollTop = box.scrollHeight;
+}
+
+function removeTyping() {
+  const el = document.getElementById("typing-indicator");
+  if (el) el.remove();
+}
+
+function updateSendBtn() {
+  const btn = document.getElementById("send-btn");
+  const a = AGENTS.find(x => x.id === currentTab);
+  const val = document.getElementById("msg-input").value.trim();
+  btn.style.background = (val && !busy) ? a.color : "#111120";
+}
+
+async function sendMsg(text) {
+  const input = document.getElementById("msg-input");
+  const t = (text || input.value).trim();
+  if (!t || busy) return;
+  input.value = "";
+  updateSendBtn();
+
+  const a = AGENTS.find(x => x.id === currentTab);
+  if (!memories[currentTab]) memories[currentTab] = [];
+  memories[currentTab].push({ role: "user", content: t });
+  saveMem();
+  renderMessages();
+  showTyping();
+  busy = true;
+  updateSendBtn();
+
+  try {
+    const msgs = memories[currentTab].slice(-10).map(m => ({ role: m.role, content: m.content }));
+    const reply = await callClaude(a.system + getKpiCtx(), msgs);
+    removeTyping();
+    memories[currentTab].push({ role: "assistant", content: reply });
+  } catch(e) {
+    removeTyping();
+    memories[currentTab].push({ role: "assistant", content: "⚠️ " + e.message });
+  }
+
+  saveMem();
+  updateTotalCount();
+  renderMessages();
+  updateRoleStrip();
+  buildTabs();
+  busy = false;
+  updateSendBtn();
+}
+
+function clearChat() {
+  memories[currentTab] = [];
+  saveMem();
+  renderMessages();
+  updateRoleStrip();
+  updateTotalCount();
+  buildTabs();
+}
+
+function init() {
+  const key = getKey();
+  if (!key) { document.getElementById("setup").style.display = "flex"; document.getElementById("app").style.display = "none"; return; }
+  document.getElementById("setup").style.display = "none";
+  document.getElementById("app").style.display = "flex";
+  loadMem();
+  loadKPIs();
+  buildTabs();
+  renderMessages();
+  updateRoleStrip();
+  updateTotalCount();
+  const input = document.getElementById("msg-input");
+  input.addEventListener("input", updateSendBtn);
+  input.addEventListener("keydown", e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMsg(); } });
+}
+
+init();
+</script>
+
+</body>
+</html>
